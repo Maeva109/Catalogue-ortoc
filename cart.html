@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Panier - Catalogue Artisanat</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="hero-section">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1>Votre Panier</h1>
+        </div>
+    </header>
+
+    <main class="main-content-wrapper">
+        <!-- Initial Cart View -->
+        <section id="initial-cart-view" class="cart-page-container">
+            <div class="cart-items-section">
+                <h2>Résumé de votre panier</h2>
+                <table class="cart-items-table">
+                    <thead>
+                        <tr>
+                            <th></th> <!-- For remove button -->
+                            <th>Produit</th>
+                            <th>Prix</th>
+                            <th>Quantité</th>
+                            <th>Sous-total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cart-items-body">
+                        <!-- Cart items will be loaded here by JS -->
+                    </tbody>
+                </table>
+                <div class="promo-code">
+                    <input type="text" id="promo-code" placeholder="Code promo">
+                    <button class="button">Appliquer le code promo</button>
+                </div>
+            </div>
+
+            <div class="cart-totals-section">
+                <h2>Totaux du panier</h2>
+                <div class="cart-totals-content">
+                    <div class="cart-subtotal">
+                        <span>Sous-total</span>
+                        <span id="cart-subtotal"></span>
+                    </div>
+                    <div class="cart-delivery-info">
+                        <!-- Delivery cost will be shown here based on selection in the next step -->
+                    </div>
+                    <div class="cart-total-amount">
+                        <span>Total</span>
+                        <span id="cart-total-amount"></span>
+                    </div>
+                    <button class="button primary-button" id="checkout-button">Passer à la commande</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Checkout View (Initially Hidden) -->
+        <section id="checkout-view" style="display: none;" class="checkout-page-container">
+            <div class="checkout-left-column">
+                 <section class="client-info-section">
+                    <h2>Vos informations</h2>
+                    <form id="client-info-form" novalidate>
+                        <div class="form-group">
+                            <label for="full-name">Nom complet:</label>
+                            <input type="text" id="full-name" name="fullName" required 
+                                   pattern="[A-Za-zÀ-ÿ\s-]+" 
+                                   title="Veuillez entrer un nom valide (lettres, espaces et tirets uniquement)">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="email" id="email" name="email" required
+                                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                                   title="Veuillez entrer une adresse email valide">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Téléphone:</label>
+                            <input type="tel" id="phone" name="phone" required
+                                   pattern="[0-9]{10}"
+                                   title="Veuillez entrer un numéro de téléphone valide (10 chiffres)">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Adresse de livraison:</label>
+                            <textarea id="address" name="address" required
+                                      minlength="10"
+                                      title="Veuillez entrer une adresse complète"></textarea>
+                        </div>
+                       
+                    </form>
+                </section>
+
+                <section class="delivery-payment-section">
+                     <div class="delivery-method-section">
+                         <h2>Mode de livraison</h2>
+                         <div class="delivery-options" id="checkout-delivery-options">
+                             <!-- Delivery options will be loaded here by JS -->
+                         </div>
+                     </div>
+
+                     <div class="payment-method-section">
+                         <h2>Mode de paiement</h2>
+                          <div class="payment-options" id="checkout-payment-options">
+                              <!-- Payment options will be loaded here by JS -->
+                          </div>
+                     </div>
+                 </section>
+
+                 <button type="submit" class="button primary-button" id="confirm-order-button">Procéder à la facturation</button>
+
+            </div>
+
+            <div class="checkout-right-column">
+                <section class="order-summary-recap">
+                    <h2>Récapitulatif de la commande</h2>
+                    <div id="order-summary-items">
+                        <!-- Cart items recap will be loaded here by JS -->
+                    </div>
+                     <div class="order-summary-totals">
+                         <!-- Totals recap (Subtotal, Delivery, Total) will be loaded here by JS -->
+                     </div>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <div class="floating-cart">
+        <span class="cart-icon">🛒</span>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Catalogue de Produits Artisanaux</p>
+    </footer>
+
+    <script src="data.js"></script> <!-- Need product data to display details in cart -->
+    <script src="cart-logic.js"></script> <!-- Core cart logic -->
+    <script src="cart.js"></script> <!-- Page specific script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const clientInfoForm = document.getElementById('client-info-form');
+            const confirmOrderButton = document.getElementById('confirm-order-button');
+            
+            // Initially disable the confirm order button
+            if (confirmOrderButton) {
+                confirmOrderButton.disabled = true;
+            }
+
+            // Function to validate the form
+            function validateForm() {
+                const form = clientInfoForm;
+                const inputs = form.querySelectorAll('input, textarea');
+                let isValid = true;
+
+                inputs.forEach(input => {
+                    if (input.hasAttribute('required')) {
+                        if (!input.value.trim()) {
+                            isValid = false;
+                            input.classList.add('invalid');
+                        } else {
+                            input.classList.remove('invalid');
+                        }
+
+                        // Check pattern if it exists
+                        if (input.hasAttribute('pattern')) {
+                            const pattern = new RegExp(input.getAttribute('pattern'));
+                            if (!pattern.test(input.value)) {
+                                isValid = false;
+                                input.classList.add('invalid');
+                            }
+                        }
+
+                        // Check minlength for textarea
+                        if (input.tagName === 'TEXTAREA' && input.hasAttribute('minlength')) {
+                            if (input.value.length < parseInt(input.getAttribute('minlength'))) {
+                                isValid = false;
+                                input.classList.add('invalid');
+                            }
+                        }
+                    }
+                });
+
+                // Enable/disable confirm order button based on validation
+                if (confirmOrderButton) {
+                    confirmOrderButton.disabled = !isValid;
+                }
+
+                return isValid;
+            }
+
+            // Add input event listeners to all form fields
+            const formInputs = clientInfoForm.querySelectorAll('input, textarea');
+            formInputs.forEach(input => {
+                input.addEventListener('input', validateForm);
+                input.addEventListener('blur', validateForm);
+            });
+
+            // Handle form submission
+            clientInfoForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (validateForm()) {
+                    // Store form data in localStorage or proceed with payment
+                    const formData = new FormData(clientInfoForm);
+                    const formDataObj = {};
+                    formData.forEach((value, key) => {
+                        formDataObj[key] = value;
+                    });
+                    localStorage.setItem('clientInfo', JSON.stringify(formDataObj));
+                    
+                    // Enable the confirm order button
+                    if (confirmOrderButton) {
+                        confirmOrderButton.disabled = false;
+                    }
+                    
+                    // Scroll to payment section
+                    document.querySelector('.delivery-payment-section').scrollIntoView({ 
+                        behavior: 'smooth' 
+                    });
+                } else {
+                    alert('Veuillez remplir correctement tous les champs requis.');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

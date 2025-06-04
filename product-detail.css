@@ -1,0 +1,108 @@
+.product-detail-section {
+    padding: 2rem;
+    max-width: 1000px;
+    margin: 2rem auto;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#product-detail-container {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+.product-images {
+    flex: 1 1 400px; /* Grow and shrink, basis 400px */
+    /* Styles for the carousel container will go here */
+}
+
+.product-main-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.product-thumbnails {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    /* Styles for thumbnails */
+}
+
+.product-thumbnails img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.product-thumbnails img:hover {
+    border-color: var(--primary-color);
+}
+
+.product-info-details {
+    flex: 1 1 300px; /* Grow and shrink, basis 300px */
+}
+
+.product-info-details h2 {
+    color: var(--primary-color);
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.product-info-details .price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.product-info-details .description {
+    margin-bottom: 1rem;
+}
+
+.product-varieties-details h3 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+}
+
+.variety-item-detail {
+    background-color: var(--light-grey);
+    padding: 0.8rem;
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+.product-actions-details {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.similar-products-section {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 2rem auto;
+}
+
+.similar-products-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.similar-products-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+/* Reuse product-card styles from styles.css for similar products */ 
