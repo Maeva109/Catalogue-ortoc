@@ -47,6 +47,50 @@ nav ul li a.active {
     color: var(--primary-color);
 }
 
+/* --- Breadcrumb Styles --- */
+.breadcrumb-container {
+  background-color: var(--light-grey); /* Or transparent, depending on desired look */
+  padding: 0.75rem 1rem; /* Adjust padding as needed */
+  margin-bottom: 1.5rem; /* Space below breadcrumbs */
+  /* Assuming it's placed directly in the flow; if inside main-content-wrapper, adjust margin/padding */
+}
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 12px;
+  color: #3E3E3E;
+}
+
+.breadcrumb-item {
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+  content: ">"; /* Chevron separator */
+  display: inline-block;
+  padding: 0 0.5em; /* Space around separator */
+  color: #6c757d; /* Separator color (can also be #3E3E3E) */
+}
+
+.breadcrumb-item a {
+  text-decoration: none;
+  color: var(--primary-color); /* Or #3E3E3E if links should not be primary color */
+}
+
+.breadcrumb-item a:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+  color: #6c757d; /* Muted color for the active page */
+  font-weight: bold; /* Optional: make active page bold */
+}
+
 .hero-section {
     position: relative;
     height: 100vh; /* Adjust as needed */
@@ -136,24 +180,66 @@ nav ul li a.active {
      font-weight: bold;
 }
 
-.sidebar-nav ul ul {
-    padding-left: 20px; /* Indent subcategories */
-    border-left: 2px solid var(--accent-color); /* Accent color for subcategories */
+.sidebar-nav .category-link {
+    display: flex; /* To align icon and text */
+    align-items: center;
+    /* Existing styles for .category-link like padding, text-decoration etc. are part of .sidebar-nav li a */
+}
+
+.sidebar-nav .toggle-icon {
+    margin-right: 8px; /* Space between icon and text */
+    display: inline-block;
+    transition: transform 0.3s ease-in-out; /* For icon rotation */
+    width: 1em; /* Ensure consistent spacing */
+    text-align: center;
+}
+
+.sidebar-nav > ul > li.expanded > .category-link > .toggle-icon {
+    transform: rotate(90deg); /* Rotate icon when expanded */
+}
+
+.sidebar-nav > ul > li > ul { /* More specific selector for direct subcategory lists */
+    list-style: none; /* Ensure list style is reset */
+    padding-left: 20px; /* Keep indentation from original .sidebar-nav ul ul */
+    /* border-left: 2px solid var(--accent-color); /* Applied when expanded */
+    /* margin-top: 5px; /* Applied when expanded */
+    /* margin-bottom: 5px; /* Applied when expanded */
+
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out,
+                padding-top 0.3s ease-in-out,
+                padding-bottom 0.3s ease-in-out,
+                margin-top 0.3s ease-in-out,
+                margin-bottom 0.3s ease-in-out,
+                border-width 0.3s ease-in-out; /* For border animation */
+    border-left: 2px solid transparent; /* Start transparent for smooth transition */
+}
+
+.sidebar-nav > ul > li.expanded > ul {
+    max-height: 1000px; /* Adjust to a value larger than any possible sublist height */
+    padding-top: 5px;
+    padding-bottom: 5px;
     margin-top: 5px;
     margin-bottom: 5px;
+    border-left-color: var(--accent-color); /* Make border visible when expanded */
 }
 
-.sidebar-nav ul ul li a {
+.sidebar-nav > ul > li > ul li a { /* Made selector more specific */
     padding: 8px 15px; /* Adjusted padding for subcategories */
     font-size: 0.9rem;
+    /* Ensure other necessary link styles like color, text-decoration are inherited or set here */
+    /* For example, if they are not inheriting from .sidebar-nav li a properly: */
+    /* color: var(--text-color); */
+    /* text-decoration: none; */
 }
 
-.sidebar-nav ul ul li a:hover {
+.sidebar-nav > ul > li > ul li a:hover { /* Specific selector for hover */
      background-color: var(--accent-color);
      color: var(--primary-color);
 }
 
-.sidebar-nav ul ul li a.active {
+.sidebar-nav > ul > li > ul li a.active { /* Specific selector for active */
     background-color: var(--accent-color);
     color: var(--primary-color);
     font-weight: bold;
@@ -176,6 +262,164 @@ nav ul li a.active {
     max-width: none; /* Remove max-width */
     margin: 0; /* Remove margin */
 }
+
+/* --- Subcategory Title --- */
+.subcategory-title {
+    font-size: 24px;
+    color: #A34728; /* Rouge brique */
+    margin-bottom: 20px; /* Space above carousel */
+    text-align: center; /* Or as desired */
+}
+
+/* --- Product Carousel Styles --- */
+.product-carousel-container {
+    position: relative;
+    margin-bottom: 2rem; /* Space below carousel */
+}
+
+.product-carousel {
+    overflow: hidden; /* Crucial for containing the track */
+    position: relative;
+}
+
+.carousel-track {
+    display: flex;
+    gap: 15px; /* Space between product cards */
+    padding: 10px 0; /* Some vertical padding for shadow/outline */
+    transition: transform 0.5s ease-in-out; /* For smooth scrolling if using transform */
+}
+
+.carousel-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.carousel-nav-btn:hover {
+    background-color: white;
+}
+.carousel-nav-btn.prev-btn {
+    left: -20px; /* Adjust positioning */
+}
+.carousel-nav-btn.next-btn {
+    right: -20px; /* Adjust positioning */
+}
+.carousel-nav-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+
+/* --- Carousel Item (Product Card Adaptation) --- */
+.carousel-item {
+    flex: 0 0 auto; /* Prevent shrinking/growing, allow auto width based on content or fixed width */
+    width: 250px; /* Example width, adjust as needed */
+    /* Inherit or copy .product-card styles and adapt as needed */
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.carousel-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.carousel-item .img-container {
+    position: relative; /* For positioning the add-to-cart button */
+    width: 100%;
+}
+
+.carousel-item .img-container img {
+    width: 100%;
+    height: 250px; /* Keep consistent with existing product card image height */
+    object-fit: cover;
+    display: block; /* Remove extra space below image */
+    border-bottom: 1px solid var(--border-color); /* Match original .product-card img */
+}
+
+.carousel-item .add-to-cart-btn-carousel {
+    display: none; /* Hidden by default */
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    border: none; /* from .button */
+    border-radius: 4px; /* from .button */
+    cursor: pointer; /* from .button */
+    font-weight: bold; /* from .button */
+    /* transition: background-color 0.2s; from .button - if needed */
+}
+
+.carousel-item .img-container:hover .add-to-cart-btn-carousel {
+    display: block;
+}
+
+.carousel-item .add-to-cart-btn-carousel:hover {
+    background-color: #083358; /* Darken primary color */
+}
+
+
+.carousel-item .product-card-content {
+    padding: var(--card-padding);
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.carousel-item .product-card-content h3 {
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: var(--text-color);
+    font-size: 1rem;
+    font-weight: normal;
+}
+
+.carousel-item .product-card-content p { /* For price */
+    margin: 0.5rem 0; /* Adjust as needed */
+    color: var(--text-color); /* Or var(--primary-color) if price should be highlighted */
+}
+
+.carousel-item .view-btn-carousel {
+    /* General button styling from .button is not automatically inherited by class alone */
+    /* Apply base button styles or ensure they are captured by a general .button rule */
+    background-color: var(--accent-color);
+    color: var(--primary-color);
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+    font-size: 0.9rem;
+    width: 100%;
+    margin-top: 10px;
+    text-align: center; /* Ensure text is centered */
+}
+
+.carousel-item .view-btn-carousel:hover {
+    background-color: #2E5D34; /* Green on hover */
+    color: white;
+}
+
 
 .product-list {
     display: grid;

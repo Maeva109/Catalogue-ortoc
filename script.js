@@ -1,4 +1,9 @@
-// Fonction pour générer le HTML d'une carte produit
+// Helper function to format price (assuming it's not globally available)
+function formatPrice(price) {
+    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(price);
+}
+
+// Fonction pour générer le HTML d'une carte produit (original, for non-carousel use if any)
 function createProductCard(product) {
     return `
         <li class="product-card" data-product-id="${product.id}">
@@ -15,61 +20,165 @@ function createProductCard(product) {
     `;
 }
 
-// Fonction pour afficher les produits d'une sous-catégorie
-function displayProducts(products) {
+// Function to create product card HTML for carousel
+function createProductCardForCarousel(product) {
+    return `
+        <div class="product-card carousel-item" data-product-id="${product.id}">
+          <div class="img-container">
+            <img src="${product.images[0]}" alt="${product.name}">
+            <button class="button add-to-cart-btn-carousel" data-product-id="${product.id}">+ Panier</button>
+          </div>
+          <div class="product-card-content">
+            <h3>${product.name}</h3>
+            <p><strong>${formatPrice(product.price)}</strong></p>
+            <button class="button view-btn-carousel" data-product-id="${product.id}">Voir</button>
+          </div>
+        </div>
+    `;
+}
+
+// Fonction pour afficher les produits (conditionally carousel or grid)
+function displayProducts(products, subcategoryName = null) { // Added default null for subcategoryName
     const productsSection = document.querySelector('.products-section');
-    if (!productsSection) return; // Added null check
+    if (!productsSection) return;
 
-    const productList = document.createElement('ul');
-    productList.className = 'product-list';
-    
-    // Limit to 6 products for display on the main page, if more exist
-    const productsToDisplay = products.slice(0, 6);
+    productsSection.innerHTML = ''; // Clear previous content
 
-    if (productsToDisplay.length === 0) {
-        productsSection.innerHTML = '<p>Aucun produit trouvé dans cette catégorie.</p>';
-    } else {
-         productsToDisplay.forEach(product => {
-            productList.innerHTML += createProductCard(product);
+    if (subcategoryName) { // Render Carousel
+        const titleElement = document.createElement('h2');
+        titleElement.className = 'subcategory-title';
+        titleElement.textContent = subcategoryName;
+        productsSection.appendChild(titleElement);
+
+        if (!products || products.length === 0) {
+            const noProductsMessage = document.createElement('p');
+            noProductsMessage.textContent = 'Aucun produit trouvé dans cette catégorie.';
+            productsSection.appendChild(noProductsMessage);
+            return;
+        }
+
+        const carouselContainerHTML = `
+            <div class="product-carousel-container">
+                <button class="carousel-nav-btn prev-btn" aria-label="Previous products">&lt;</button>
+                <div class="product-carousel">
+                    <div class="carousel-track">
+                        ${products.map(product => createProductCardForCarousel(product)).join('')}
+                    </div>
+                </div>
+                <button class="carousel-nav-btn next-btn" aria-label="Next products">&gt;</button>
+            </div>
+        `;
+        productsSection.insertAdjacentHTML('beforeend', carouselContainerHTML);
+
+        // Carousel Navigation Logic
+        const track = productsSection.querySelector('.carousel-track');
+        const prevBtn = productsSection.querySelector('.prev-btn');
+        const nextBtn = productsSection.querySelector('.next-btn');
+
+        if (track && prevBtn && nextBtn) { // Ensure elements exist
+            const cardWidth = 250 + 15; // card width + gap
+            let currentScroll = 0;
+
+            function updateNavButtons() {
+                if (!track.parentElement) return; // Parent might not exist if section cleared rapidly
+                prevBtn.disabled = currentScroll <= 0;
+                nextBtn.disabled = currentScroll + track.parentElement.clientWidth >= track.scrollWidth;
+            }
+
+            prevBtn.addEventListener('click', () => {
+                currentScroll = Math.max(0, currentScroll - cardWidth);
+                track.style.transform = `translateX(-${currentScroll}px)`;
+                updateNavButtons();
+            });
+
+            nextBtn.addEventListener('click', () => {
+                 if (!track.parentElement) return;
+                currentScroll = Math.min(currentScroll + cardWidth, track.scrollWidth - track.parentElement.clientWidth);
+                track.style.transform = `translateX(-${currentScroll}px)`;
+                updateNavButtons();
+            });
+
+            updateNavButtons(); // Initial button states
+        }
+
+        // Event listeners for new carousel buttons
+        productsSection.querySelectorAll('.add-to-cart-btn-carousel').forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.stopPropagation();
+                const productId = this.getAttribute('data-product-id');
+                addToCart(productId);
+            });
         });
-        productsSection.innerHTML = ''; // Clear previous products
+
+        productsSection.querySelectorAll('.view-btn-carousel').forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.stopPropagation();
+                const productId = this.getAttribute('data-product-id');
+                window.location.href = `product-detail.html?id=${productId}`;
+            });
+        });
+
+        productsSection.querySelectorAll('.product-card.carousel-item').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (!e.target.closest('button')) {
+                     const productId = this.getAttribute('data-product-id');
+                     window.location.href = `product-detail.html?id=${productId}`;
+                }
+            });
+        });
+
+    } else { // Render Grid
+        if (!products || products.length === 0) {
+            productsSection.innerHTML = '<p>Aucun produit à afficher.</p>'; // Generic message for grid
+            return;
+        }
+        const productList = document.createElement('ul');
+        productList.className = 'product-list';
+
+        // For grid, display all products passed (or a slice if defined elsewhere)
+        products.forEach(product => {
+            productList.innerHTML += createProductCard(product); // Use original card function
+        });
         productsSection.appendChild(productList);
+
+        // Add event listeners for original grid buttons
+        productsSection.querySelectorAll('.add-to-cart-button').forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.stopPropagation();
+                const productId = this.getAttribute('data-product-id');
+                addToCart(productId);
+            });
+        });
+
+        productsSection.querySelectorAll('.product-card:not(.carousel-item)').forEach(card => {
+             card.addEventListener('click', function(e) {
+                 if (!e.target.closest('button') && !e.target.closest('.view-more-link')) {
+                    const productId = this.getAttribute('data-product-id');
+                    window.location.href = `product-detail.html?id=${productId}`;
+                 }
+            });
+        });
+         // Note: view-more-link is an <a> tag, its default behavior should work.
     }
-
-    // Add event listeners to the new "Ajouter au panier" buttons
-    productsSection.querySelectorAll('.add-to-cart-button').forEach(button => {
-        button.addEventListener('click', function(event) {
-            console.log('Add to cart button clicked'); // Added console log
-            event.stopPropagation(); // Prevent click on card from firing
-            const productId = this.getAttribute('data-product-id');
-            addToCart(productId); // Call addToCart from cart-logic.js
-        });
-    });
-
-    // Add event listener to product cards for "Voir plus" redirection
-    productsSection.querySelectorAll('.product-card').forEach(card => {
-        card.addEventListener('click', function() {
-             const productId = this.getAttribute('data-product-id');
-             window.location.href = `product-detail.html?id=${productId}`;
-        });
-    });
 }
 
 // Fonction pour afficher les catégories et sous-catégories dans la sidebar
 function initializeSidebar() {
     const categoryList = document.getElementById('category-list');
-    if (!categoryList) return; // Added null check
+    if (!categoryList) return;
 
     categoryList.innerHTML = productsData.categories.map(category => {
         let subcategoriesHtml = '';
+        let toggleIconHtml = '';
         if (category.subcategories && category.subcategories.length > 0) {
+            toggleIconHtml = '<span class="toggle-icon">▶</span>';
             subcategoriesHtml = `<ul>${category.subcategories.map(sub => 
                 `<li><a href="#" data-subcategory="${sub.id}">${sub.name}</a></li>`
             ).join('')}</ul>`;
         }
         return `
             <li>
-                <a href="#" data-category="${category.id}" class="category-link">${category.name}</a>
+                <a href="#" data-category="${category.id}" class="category-link">${toggleIconHtml}${category.name}</a>
                 ${subcategoriesHtml}
             </li>
         `;
@@ -80,92 +189,116 @@ function initializeSidebar() {
         link.addEventListener('click', function(event) {
             event.preventDefault();
             const categoryId = this.getAttribute('data-category');
+            const parentLi = this.closest('li');
+            const subList = parentLi.querySelector('ul');
+            const toggleIcon = this.querySelector('.toggle-icon');
 
-            // Toggle active class for visual feedback
+            // Toggle active class for category link visual feedback
             categoryList.querySelectorAll('.category-link').forEach(catLink => catLink.classList.remove('active'));
             this.classList.add('active');
 
-            // For "Tous" category, display products from the first subcategory of the first category with subcategories
-            if(categoryId === 'all') {
-                 const firstCategoryWithSubs = productsData.categories.find(cat => cat.subcategories && cat.subcategories.length > 0);
-                 if (firstCategoryWithSubs && firstCategoryWithSubs.subcategories.length > 0) {
-                      // Find the first subcategory link and trigger its click
-                      const firstSubcategoryLink = categoryList.querySelector(`[data-subcategory="${firstCategoryWithSubs.subcategories[0].id}"]`);
-                      if(firstSubcategoryLink) {
-                           firstSubcategoryLink.click();
-                      }
-                 } else {
-                      displayProducts([]); // No products if no categories with subcategories
-                 }
-                 // Hide all subcategory lists except for the active category (if any)
-                 categoryList.querySelectorAll('li ul').forEach(ul => ul.style.display = 'none'); // Select nested ULs specifically
-                  const activeCategoryLi = this.closest('li');
-                  if(activeCategoryLi) {
-                      const subList = activeCategoryLi.querySelector('ul');
-                      if(subList) subList.style.display = 'block';
-                  }
+            if (categoryId === 'all') {
+                // Collapse all other categories
+                categoryList.querySelectorAll('li.expanded').forEach(li => {
+                    if (li !== parentLi) { // Check if it's not the 'Tous' li itself, though 'Tous' usually won't have subcategories to expand
+                        li.classList.remove('expanded');
+                        const icon = li.querySelector('.toggle-icon');
+                        if (icon) icon.textContent = '▶';
+                    }
+                });
 
-            } else {
-                 // Find the selected category
-                const selectedCategory = productsData.categories.find(cat => cat.id === categoryId);
+                const firstCategoryWithSubs = productsData.categories.find(cat => cat.subcategories && cat.subcategories.length > 0);
+                if (firstCategoryWithSubs && firstCategoryWithSubs.subcategories && firstCategoryWithSubs.subcategories.length > 0) {
+                    const productsToShow = firstCategoryWithSubs.subcategories[0].products.slice(0, 6); // Get some products
+                    displayProducts(productsToShow, null); // Pass null for subcategoryName to trigger grid display
+                } else {
+                    // Fallback if no categories with subcategories exist, or display all products
+                    const allProducts = productsData.categories.reduce((acc, category) => {
+                        category.subcategories.forEach(sub => acc.push(...sub.products));
+                        return acc;
+                    }, []).slice(0,6); // Example: display first 6 of all products
+                    displayProducts(allProducts, null);
+                }
+            } else { // For specific categories (not "Tous")
+                const isCurrentlyExpanded = parentLi.classList.contains('expanded');
 
-                // Hide all subcategory lists
-                categoryList.querySelectorAll('li ul').forEach(ul => ul.style.display = 'none'); // Select nested ULs specifically
+                // Collapse all other categories before toggling the current one
+                categoryList.querySelectorAll('li.expanded').forEach(li => {
+                    if (li !== parentLi) {
+                        li.classList.remove('expanded');
+                        const icon = li.querySelector('.toggle-icon');
+                        if (icon) icon.textContent = '▶';
+                    }
+                });
 
-                // Show the subcategory list for the clicked category
-                if (selectedCategory && selectedCategory.subcategories && selectedCategory.subcategories.length > 0) {
-                    const subList = this.nextElementSibling; // The ul element after the a link
-                    if (subList && subList.tagName === 'UL') {
-                        subList.style.display = 'block';
-
-                        // Automatically click the first subcategory link to display its products
+                if (subList) { // If there are subcategories
+                    if (isCurrentlyExpanded) {
+                        parentLi.classList.remove('expanded');
+                        if (toggleIcon) toggleIcon.textContent = '▶';
+                    } else {
+                        parentLi.classList.add('expanded');
+                        if (toggleIcon) toggleIcon.textContent = '▼';
+                        // Automatically click the first subcategory link
                         const firstSubcategoryLink = subList.querySelector('a');
                         if (firstSubcategoryLink) {
-                            firstSubcategoryLink.click();
+                            firstSubcategoryLink.click(); // This will trigger displayProducts with subcategoryName
                         } else {
-                            displayProducts([]); // Clear products if category has no subcategories
+                            // Category with an empty sublist, show its name as title but no products
+                            displayProducts([], this.textContent.replace(/[▶▼]/g, '').trim());
                         }
                     }
                 } else {
-                    displayProducts([]); // Clear products if category has no subcategories
+                    // Category without subcategories, display its products (if any) as a grid
+                    // This case needs to be defined: what products to show?
+                    // For now, let's assume categories without sublists don't directly show products on main page,
+                    // or if they do, they need a product array associated directly with them.
+                    // Displaying empty grid for now if no subList.
+                    displayProducts([], null);
                 }
             }
         });
     });
 
     // Add event listeners to subcategory links
-    categoryList.querySelectorAll('li ul a').forEach(link => {
-        link.addEventListener('click', function(event) {
+    categoryList.querySelectorAll('li ul a').forEach(subLink => { // Changed variable name to avoid conflict
+        subLink.addEventListener('click', function(event) { // Changed variable name to avoid conflict
             event.preventDefault();
+            event.stopPropagation(); // Prevent category link click event from firing again
             const subcategoryId = this.getAttribute('data-subcategory');
 
-            // Toggle active class for visual feedback on subcategories
-            categoryList.querySelectorAll('li ul a').forEach(subLink => subLink.classList.remove('active'));
+            // Visual feedback for active subcategory
+            categoryList.querySelectorAll('li ul a').forEach(sLink => sLink.classList.remove('active')); // Changed variable name
             this.classList.add('active');
             
+            // Ensure parent category link also gets/keeps 'active' class
+            const parentCategoryLink = this.closest('ul').closest('li').querySelector('.category-link');
+            if (parentCategoryLink) {
+                 categoryList.querySelectorAll('.category-link').forEach(catLink => catLink.classList.remove('active'));
+                 parentCategoryLink.classList.add('active');
+            }
+
             // Find the selected subcategory and display its products
             const category = productsData.categories.find(cat => cat.subcategories.some(sub => sub.id === subcategoryId));
             const subcategory = category ? category.subcategories.find(sub => sub.id === subcategoryId) : null;
             
             if (subcategory) {
-                displayProducts(subcategory.products);
+                const subcategoryName = this.textContent; // Get subcategory name
+                displayProducts(subcategory.products, subcategoryName); // Pass name to displayProducts
             } else {
-                 displayProducts([]); // Clear products if subcategory not found
+                 displayProducts([], "Inconnue");
             }
         });
     });
 
-    // Initially click on the first category ("Tous") to load content
-    const firstCategoryLink = categoryList.querySelector('.category-link[data-category="all"]');
-     if(firstCategoryLink) {
-         firstCategoryLink.click();
-     }
+    // Initially click on the "Tous" category to load default content
+    const allCategoryLink = categoryList.querySelector('.category-link[data-category="all"]');
+    if (allCategoryLink) {
+        allCategoryLink.click();
+    }
+    // Subcategories are collapsed by default due to CSS (max-height: 0)
 
-     // Hide all subcategory lists initially
-     categoryList.querySelectorAll('li ul').forEach(ul => ul.style.display = 'none'); // Select nested ULs specifically
-
-     // Update floating cart item count on page load and when cart changes
-     updateFloatingCartIcon();
+    // Update floating cart item count on page load and when cart changes
+    updateFloatingCartIcon();
      window.addEventListener('cartUpdated', updateFloatingCartIcon);
 }
 
