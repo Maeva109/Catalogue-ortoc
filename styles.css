@@ -47,6 +47,50 @@ nav ul li a.active {
     color: var(--primary-color);
 }
 
+/* --- Breadcrumb Styles --- */
+.breadcrumb-container {
+  background-color: var(--light-grey); /* Or transparent, depending on desired look */
+  padding: 0.75rem 1rem; /* Adjust padding as needed */
+  margin-bottom: 1.5rem; /* Space below breadcrumbs */
+  /* Assuming it's placed directly in the flow; if inside main-content-wrapper, adjust margin/padding */
+}
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 12px;
+  color: #3E3E3E;
+}
+
+.breadcrumb-item {
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+  content: ">"; /* Chevron separator */
+  display: inline-block;
+  padding: 0 0.5em; /* Space around separator */
+  color: #6c757d; /* Separator color (can also be #3E3E3E) */
+}
+
+.breadcrumb-item a {
+  text-decoration: none;
+  color: var(--primary-color); /* Or #3E3E3E if links should not be primary color */
+}
+
+.breadcrumb-item a:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+  color: #6c757d; /* Muted color for the active page */
+  font-weight: bold; /* Optional: make active page bold */
+}
+
 .hero-section {
     position: relative;
     height: 100vh; /* Adjust as needed */
@@ -99,12 +143,7 @@ nav ul li a.active {
     display: inline-block;
     font-weight: 700 !important;
 }
-.main-content-wrapper {
-    display: flex;
-    max-width: 1400px; /* Increased max-width */
-    margin: 0 auto;
-    padding: 0 20px; /* Add some horizontal padding */
-}
+/* .main-content-wrapper - Consolidated further down under Cart Page Layout */
 .sidebar {
     width: var(--sidebar-width);
     flex-shrink: 0;
@@ -141,24 +180,66 @@ nav ul li a.active {
      font-weight: bold;
 }
 
-.sidebar-nav ul ul {
-    padding-left: 20px; /* Indent subcategories */
-    border-left: 2px solid var(--accent-color); /* Accent color for subcategories */
+.sidebar-nav .category-link {
+    display: flex; /* To align icon and text */
+    align-items: center;
+    /* Existing styles for .category-link like padding, text-decoration etc. are part of .sidebar-nav li a */
+}
+
+.sidebar-nav .toggle-icon {
+    margin-right: 8px; /* Space between icon and text */
+    display: inline-block;
+    transition: transform 0.3s ease-in-out; /* For icon rotation */
+    width: 1em; /* Ensure consistent spacing */
+    text-align: center;
+}
+
+.sidebar-nav > ul > li.expanded > .category-link > .toggle-icon {
+    transform: rotate(90deg); /* Rotate icon when expanded */
+}
+
+.sidebar-nav > ul > li > ul { /* More specific selector for direct subcategory lists */
+    list-style: none; /* Ensure list style is reset */
+    padding-left: 20px; /* Keep indentation from original .sidebar-nav ul ul */
+    /* border-left: 2px solid var(--accent-color); /* Applied when expanded */
+    /* margin-top: 5px; /* Applied when expanded */
+    /* margin-bottom: 5px; /* Applied when expanded */
+
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out,
+                padding-top 0.3s ease-in-out,
+                padding-bottom 0.3s ease-in-out,
+                margin-top 0.3s ease-in-out,
+                margin-bottom 0.3s ease-in-out,
+                border-width 0.3s ease-in-out; /* For border animation */
+    border-left: 2px solid transparent; /* Start transparent for smooth transition */
+}
+
+.sidebar-nav > ul > li.expanded > ul {
+    max-height: 1000px; /* Adjust to a value larger than any possible sublist height */
+    padding-top: 5px;
+    padding-bottom: 5px;
     margin-top: 5px;
     margin-bottom: 5px;
+    border-left-color: var(--accent-color); /* Make border visible when expanded */
 }
 
-.sidebar-nav ul ul li a {
+.sidebar-nav > ul > li > ul li a { /* Made selector more specific */
     padding: 8px 15px; /* Adjusted padding for subcategories */
     font-size: 0.9rem;
+    /* Ensure other necessary link styles like color, text-decoration are inherited or set here */
+    /* For example, if they are not inheriting from .sidebar-nav li a properly: */
+    /* color: var(--text-color); */
+    /* text-decoration: none; */
 }
 
-.sidebar-nav ul ul li a:hover {
+.sidebar-nav > ul > li > ul li a:hover { /* Specific selector for hover */
      background-color: var(--accent-color);
      color: var(--primary-color);
 }
 
-.sidebar-nav ul ul li a.active {
+.sidebar-nav > ul > li > ul li a.active { /* Specific selector for active */
     background-color: var(--accent-color);
     color: var(--primary-color);
     font-weight: bold;
@@ -181,6 +262,246 @@ nav ul li a.active {
     max-width: none; /* Remove max-width */
     margin: 0; /* Remove margin */
 }
+
+/* --- Subcategory Title --- */
+.subcategory-title {
+    font-size: 24px;
+    color: #A34728; /* Rouge brique */
+    margin-bottom: 20px; /* Space above carousel */
+    text-align: center; /* Or as desired */
+}
+
+/* --- Product Carousel Styles --- */
+.product-carousel-container {
+    position: relative;
+    margin-bottom: 2rem; /* Space below carousel */
+}
+
+.product-carousel {
+    overflow: hidden; /* Crucial for containing the track */
+    position: relative;
+}
+
+.carousel-track {
+    display: flex;
+    gap: 15px; /* Space between product cards */
+    padding: 10px 0; /* Some vertical padding for shadow/outline */
+    transition: transform 0.5s ease-in-out; /* For smooth scrolling if using transform */
+}
+
+.carousel-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.carousel-nav-btn:hover {
+    background-color: white;
+}
+.carousel-nav-btn.prev-btn {
+    left: -20px; /* Adjust positioning */
+}
+.carousel-nav-btn.next-btn {
+    right: -20px; /* Adjust positioning */
+}
+.carousel-nav-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* --- Table Product Grid Styles --- */
+.product-grid {
+    margin-bottom: 40px; /* Space after the entire grid section */
+}
+
+.product-grid h3 { /* Styling for subcategory titles within the grid */
+    font-size: 1.8em; /* Or as appropriate */
+    color: var(--text-color); /* Or a specific color if desired */
+    margin-top: 2rem;    /* Space above a new subcategory table */
+    margin-bottom: 1rem; /* Space between title and its table */
+}
+.product-grid h3:first-child {
+    margin-top: 0; /* No top margin for the very first subcategory title */
+}
+
+.product-grid table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px; /* Space between tables if there are multiple */
+}
+
+.product-grid td { /* Renamed from .product-table-cell for consistency with <td> target */
+    width: 25%; /* Aim for 4 columns */
+    padding: 12px;
+    vertical-align: top;
+    border: 1px solid #f0f0f0; /* Light grey border for cells */
+    text-align: left; /* Default text align */
+}
+
+.product-grid .product-name {
+    font-weight: bold;
+    font-size: 1.1em; /* Medium size */
+    margin-bottom: 0.5em;
+    display: block; /* Ensure it takes its own line */
+}
+
+.product-grid .short-desc {
+    font-style: italic;
+    color: #777; /* Light grey */
+    font-size: 0.9em;
+    margin-bottom: 0.75em;
+    display: block; /* Ensure it takes its own line */
+    min-height: 3em; /* Attempt to reserve space for 2-3 lines to help vertical alignment */
+}
+
+.product-grid .product-price-display {
+    font-weight: bold;
+    font-size: 1.15em; /* Slightly larger */
+    margin-bottom: 0.5em;
+    display: flex; /* For aligning heart icon */
+    justify-content: space-between; /* Push heart to the right */
+    align-items: center;
+}
+
+.product-grid .heart-icon {
+    /* font-size: 1.2em; /* Optional: make heart slightly bigger */
+    /* color: #ccc; /* Default color for non-liked heart */
+    cursor: pointer; /* If it becomes interactive */
+    margin-left: 5px; /* Space from price */
+}
+/* Example for a liked heart (if class is added by JS later) */
+/*
+.product-grid .heart-icon.liked {
+    color: red;
+}
+*/
+
+.product-grid .rating-container { /* Optional wrapper for stars and reviews */
+    font-size: 0.9em;
+    color: #555;
+    min-height: 2em; /* Reserve space */
+}
+
+.product-grid .star-rating {
+    color: #f0ad4e; /* Orange/gold color for stars */
+    margin-right: 0.5em;
+}
+
+.product-grid .review-count {
+    color: #777; /* Light grey for review count */
+}
+
+
+/* --- Carousel Item (Product Card Adaptation) --- */
+.carousel-item {
+    flex: 0 0 auto; /* Prevent shrinking/growing, allow auto width based on content or fixed width */
+    width: 250px; /* Example width, adjust as needed */
+    /* Inherit or copy .product-card styles and adapt as needed */
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.carousel-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.carousel-item .img-container {
+    position: relative; /* For positioning the add-to-cart button */
+    width: 100%;
+}
+
+.carousel-item .img-container img {
+    width: 100%;
+    height: 250px; /* Keep consistent with existing product card image height */
+    object-fit: cover;
+    display: block; /* Remove extra space below image */
+    border-bottom: 1px solid var(--border-color); /* Match original .product-card img */
+}
+
+.carousel-item .add-to-cart-btn-carousel {
+    display: none; /* Hidden by default */
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    border: none; /* from .button */
+    border-radius: 4px; /* from .button */
+    cursor: pointer; /* from .button */
+    font-weight: bold; /* from .button */
+    /* transition: background-color 0.2s; from .button - if needed */
+}
+
+.carousel-item .img-container:hover .add-to-cart-btn-carousel {
+    display: block;
+}
+
+.carousel-item .add-to-cart-btn-carousel:hover {
+    background-color: #083358; /* Darken primary color */
+}
+
+
+.carousel-item .product-card-content {
+    padding: var(--card-padding);
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.carousel-item .product-card-content h3 {
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: var(--text-color);
+    font-size: 1rem;
+    font-weight: normal;
+}
+
+.carousel-item .product-card-content p { /* For price */
+    margin: 0.5rem 0; /* Adjust as needed */
+    color: var(--text-color); /* Or var(--primary-color) if price should be highlighted */
+}
+
+.carousel-item .view-btn-carousel {
+    /* General button styling from .button is not automatically inherited by class alone */
+    /* Apply base button styles or ensure they are captured by a general .button rule */
+    background-color: var(--accent-color);
+    color: var(--primary-color);
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+    font-size: 0.9rem;
+    width: 100%;
+    margin-top: 10px;
+    text-align: center; /* Ensure text is centered */
+}
+
+.carousel-item .view-btn-carousel:hover {
+    background-color: #2E5D34; /* Green on hover */
+    color: white;
+}
+
 
 .product-list {
     display: grid;
@@ -273,6 +594,10 @@ nav ul li a.active {
     background-color: #e6c200; /* A specific hover color for yellow */
 }
 
+.button:focus {
+    box-shadow: 0 0 5px var(--primary-color);
+}
+
 .view-more-link {
     text-decoration: none;
     color: var(--primary-color);
@@ -283,6 +608,16 @@ nav ul li a.active {
 
 .view-more-link:hover {
     color: #083358; /* A specific hover color for blue */
+}
+
+.view-more-link:focus {
+    box-shadow: 0 0 5px var(--primary-color);
+    outline: none; /* Remove default outline if custom shadow is used */
+}
+
+.sidebar-nav li a:focus {
+    box-shadow: 0 0 5px var(--primary-color);
+    outline: none;
 }
 
 .floating-cart {
@@ -300,9 +635,11 @@ nav ul li a.active {
     font-size: 1.8rem;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     z-index: 1000;
-    position: relative; /* Set to relative positioning for the badge\'s absolute positioning */
+    /* Shining effect - adjust as needed */
+    animation: pulse 2s infinite;
+    /* position: relative; /* Set to relative positioning for the badge's absolute positioning - this was from the other .floating-cart */
 }
 
 .floating-cart::after {
@@ -331,43 +668,35 @@ nav ul li a.active {
     opacity: 1; /* Make visible */
 }
 
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-.floating-cart.bounce {
-    animation: pulse 0.5s ease;
-}
+/* Removed duplicated @keyframes pulse for scale, keeping the box-shadow one */
+/* .floating-cart.bounce related to the scale pulse is also removed. */
 
 .floating-cart {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background-color: var(--primary-color);
+    background-color: var(--primary-color); /* Kept this version's background */
     color: white; /* Icon color */
-    width: 50px; /* Size of the icon container */
-    height: 50px; /* Size of the icon container */
+    width: 60px; /* Reverted to 60px */
+    height: 60px; /* Reverted to 60px */
     border-radius: 50%; /* Make it round */
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Base shadow */
     cursor: pointer;
     z-index: 1000;
-    font-size: 1.5rem; /* Icon size */
+    font-size: 1.8rem; /* Reverted to 1.8rem */
     transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-     /* Shining effect - adjust as needed */
-    animation: pulse 2s infinite;
+    animation: pulse 2s infinite; /* Kept box-shadow pulse animation */
 }
 
 .floating-cart:hover {
     transform: scale(1.1); /* Slightly enlarge on hover */
-    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3); /* Enhanced shadow on hover */
 }
 
-@keyframes pulse {
+@keyframes pulse { /* Kept this keyframe set for box-shadow pulse */
     0% { box-shadow: 0 0 0 0 rgba(12, 65, 120, 0.4); }
     70% { box-shadow: 0 0 0 15px rgba(12, 65, 120, 0); }
     100% { box-shadow: 0 0 0 0 rgba(12, 65, 120, 0); }
@@ -422,195 +751,72 @@ footer {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 } 
 /* --- Cart Page Styles --- */
-.cart-page-container {
-    display: flex;
-    flex-wrap: wrap; /* Allow wrapping on smaller screens */
-    gap: 2rem; /* Space between sections */
-    padding: 2rem 0;
-}
+/* Removed first instance of .cart-page-container, .cart-items-section, .cart-items-table,
+   .cart-items-table th, .cart-items-table td, .cart-item-info, .cart-item-image,
+   .quantity-selector, .remove-item-button, .promo-code, .promo-code input[type="text"],
+   .promo-code .button, .cart-totals-section, .cart-totals-section h2,
+   .cart-totals-content > div, .cart-delivery-info, .cart-total-amount,
+   and .cart-totals-section .primary-button.
+   These are consolidated with the versions under "--- Cart Page Layout ---"
+   and "--- Cart Items Table ---" or later specific definitions. */
 
-.cart-items-section {
-    flex: 2; /* Take up more space */
-    min-width: 300px; /* Ensure it doesn't get too small */
-}
-
-.cart-items-table {
-    width: 100%;
-    border-collapse: collapse; /* Remove space between borders */
-    margin-bottom: 1rem; /* Space below the table */
-}
-
-.cart-items-table th,
-.cart-items-table td {
-    border-bottom: 1px solid var(--border-color); /* Separator line */
-    padding: 10px;
-    text-align: left;
-}
-
-.cart-items-table th {
-    background-color: var(--light-grey);
-    font-weight: bold;
-}
-
-.cart-item-info {
-    display: flex;
-    align-items: center;
-}
-
-.cart-item-image {
-    width: 50px; /* Adjust size as needed */
-    height: 50px; /* Adjust size as needed */
-    object-fit: cover;
-    margin-right: 10px;
-    border-radius: 4px; /* Optional: subtle border-radius */
-}
-
-.quantity-selector {
-    width: 50px; /* Adjust width as needed */
-    padding: 5px;
-    text-align: center;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-}
-
-.remove-item-button {
-    background-color: transparent; /* No background */
-    border: none;
-    color: red; /* Red color for close icon */
-    font-size: 1.2rem; /* Adjust size */
-    cursor: pointer;
-    padding: 0;
-    margin: 0;
-    transition: color 0.2s ease;
-}
-
-.remove-item-button:hover {
-    color: darkred;
-}
-
-.promo-code {
-    display: flex;
-    gap: 10px;
-    margin-top: 1rem;
-}
-
-.promo-code input[type="text"] {
-    flex-grow: 1;
-    padding: 10px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-}
-
-.promo-code .button {
-    /* Styles from existing button class */
-    padding: 10px 15px;
-}
-
-.cart-totals-section {
-    flex: 1; /* Take up less space than items */
-    min-width: 250px; /* Ensure it has a minimum width */
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    padding: 1.5rem;
-    background-color: var(--light-grey);
-}
-
-.cart-totals-section h2 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    color: var(--primary-color);
-    font-size: 1.5rem; /* Adjust font size */
-}
-
-.cart-totals-content > div {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px; /* Space between lines */
-}
-
-.cart-totals-content span {
-    font-weight: bold;
-}
-
-.cart-delivery-info {
-    font-size: 0.9rem; /* Smaller font size for delivery details */
-    color: #555; /* Slightly muted color */
-    margin-top: 15px; /* Space above delivery info */
-    padding-top: 15px; /* Space below the line */
-    border-top: 1px solid var(--border-color); /* Separator line */
-    flex-direction: column; /* Stack delivery lines */
-}
-
-.cart-total-amount {
-    font-size: 1.2rem; /* Larger font size for total */
-    margin-top: 15px; /* Space above total */
-    padding-top: 15px; /* Space below the line */
-    border-top: 1px solid var(--border-color); /* Separator line */
-}
-
-.cart-totals-section .primary-button {
-    display: block; /* Make button full width */
-    width: 100%;
-    margin-top: 1.5rem; /* Space above the button */
-    text-align: center;
-    /* Inherits other button styles */
-}
 /* --- Cart Page Layout --- */
-.main-content-wrapper {
-    max-width: 1200px; /* Adjust max-width for better spacing */
-    margin: 20px auto; /* Center the content and add vertical margin */
+.main-content-wrapper { /* Consolidated version */
+    max-width: 1200px;
+    margin: 20px auto;
     padding: 0 20px;
     display: flex;
     flex-wrap: wrap;
-    gap: 30px; /* Increase space between sections */
+    gap: 30px;
 }
 
-.cart-page-container {
+.cart-page-container { /* Consolidated version */
     display: flex;
     flex-wrap: wrap;
-    gap: 30px; /* Space between cart items and totals */
-    width: 100%; /* Ensure container takes full width */
+    gap: 30px;
+    width: 100%;
+    padding: 2rem 0; /* Added padding from earlier definition */
 }
 
 
-.cart-items-section {
-    flex: 2; /* Cart items section takes up more space */
-    min-width: 300px; /* Ensure responsiveness */
+.cart-items-section { /* Consolidated version (was identical) */
+    flex: 2;
+    min-width: 300px;
 }
 
-.cart-totals-section {
-    flex: 1; /* Cart totals section takes up less space */
-    min-width: 280px; /* Ensure responsiveness */
+.cart-totals-section { /* Consolidated version */
+    flex: 1;
+    min-width: 280px;
     border: 1px solid var(--border-color);
-    border-radius: 8px; /* Slightly more rounded corners */
-    padding: 20px; /* More padding inside the box */
-    background-color: var(--light-grey); /* Light background */
-    height: fit-content; /* Adjust height to content */
+    border-radius: 8px;
+    padding: 20px;
+    background-color: var(--light-grey);
+    height: fit-content;
 }
 
 /* --- Cart Items Table --- */
-.cart-items-table {
+.cart-items-table { /* Consolidated version */
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 20px; /* More space below the table */
-    border: 1px solid var(--border-color); /* Add border around the table */
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    overflow: hidden; /* Hide overflow for rounded corners */
+    overflow: hidden;
 }
 
 .cart-items-table thead {
-    background-color: #f0f0f0; /* Slightly darker header background */
+    background-color: #f0f0f0;
 }
 
 .cart-items-table th,
-.cart-items-table td {
-    padding: 12px 15px; /* More padding */
+.cart-items-table td { /* Consolidated padding */
+    padding: 12px 15px;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
 }
 
 .cart-items-table th:first-child {
-    width: 40px; /* Adjust width for remove button column */
+    width: 40px;
     padding-left: 15px;
     padding-right: 0;
 }
@@ -621,7 +827,8 @@ footer {
 }
 
 
-.cart-items-table th {
+.cart-items-table th { /* Merged styles */
+    background-color: #f0f0f0; /* From thead or var(--light-grey) - chosen #f0f0f0 from thead */
     font-weight: bold;
     color: var(--text-color);
     font-size: 0.9rem;
@@ -629,25 +836,30 @@ footer {
 }
 
 .cart-items-table tbody tr:last-child td {
-    border-bottom: none; /* No border for the last row */
+    border-bottom: none;
 }
 
-.cart-item-info {
+.cart-item-info { /* Consolidated to include gap */
     display: flex;
     align-items: center;
-    gap: 15px; /* Space between image and text */
+    gap: 15px;
 }
 
-.cart-item-image {
-    width: 40px; /* Larger image */
-    height: 40px; /* Larger image */
+.cart-item-image { /* Consolidated to 60px */
+    width: 60px;
+    height: 60px;
     object-fit: cover;
-    margin-right: 10px;
+    margin-right: 10px; /* Keep margin for spacing if not handled by gap alone */
     border-radius: 4px;
+    flex-shrink: 0; /* From a more specific definition, good to keep */
+}
+
+.cart-item-info > div { /* This was part of a more specific .cart-item-image rule, but applies to the text container */
+    flex-grow: 1; /* Allow text content to take available space */
 }
 
 .cart-item-info h3 {
-    margin: 0 0 5px 0; /* Adjust margin */
+    margin: 0 0 5px 0;
     font-size: 1rem;
     color: var(--primary-color);
 }
@@ -658,53 +870,68 @@ footer {
     color: #555;
 }
 
-.quantity-selector {
-    width: 60px; /* Wider input */
-    padding: 8px; /* More padding */
+.quantity-selector { /* Consolidated version */
+    width: 60px;
+    padding: 8px;
     text-align: center;
     border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 0.9rem;
 }
 
-.remove-item-button {
+.quantity-selector:focus:not(.invalid) {
+    box-shadow: 0 0 5px var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.remove-item-button { /* Consolidated to larger font size */
     background-color: transparent;
     border: none;
     color: red;
-    font-size: 1.5rem; /* Larger icon */
+    font-size: 1.5rem;
     cursor: pointer;
     padding: 0;
     margin: 0;
     transition: color 0.2s ease;
-    line-height: 1; /* Center the 'x' vertically */
+    line-height: 1;
 }
 
 .remove-item-button:hover {
     color: darkred;
 }
 
-.promo-code {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px; /* More space above */
-    padding-top: 20px; /* Space below the line */
-    border-top: 1px solid var(--border-color); /* Separator line */
+.remove-item-button:focus {
+    box-shadow: 0 0 5px var(--primary-color);
+    outline: none; /* Or a more subtle outline if preferred */
 }
 
-.promo-code input[type="text"] {
+.promo-code { /* Consolidated version */
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.promo-code input[type="text"] { /* Consolidated padding */
     flex-grow: 1;
-    padding: 12px; /* More padding */
+    padding: 12px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 0.9rem;
 }
 
-.promo-code .button {
+.promo-code input[type="text"]:focus:not(.invalid) {
+    box-shadow: 0 0 5px var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.promo-code .button { /* Consolidated padding */
     background-color: var(--accent-color);
     color: var(--primary-color);
     border: none;
     border-radius: 4px;
-    padding: 12px 20px; /* More padding */
+    padding: 12px 20px;
     cursor: pointer;
     font-size: 0.9rem;
     font-weight: bold;
@@ -712,63 +939,63 @@ footer {
 }
 
 .promo-code .button:hover {
-    background-color: darken(var(--accent-color), 10%); /* Darken on hover - requires a preprocessor or replace with a specific color */
-    /* Using a specific color for standard CSS */
-     background-color: #e6c300;
+    /* background-color: darken(var(--accent-color), 10%); /* This needs preprocessor */
+    background-color: #e6c300; /* Using a specific color for standard CSS */
 }
 
 
 /* --- Cart Totals Section --- */
-.cart-totals-section h2 {
+.cart-totals-section h2 { /* Consolidated version */
     margin-top: 0;
-    margin-bottom: 15px; /* Space below title */
+    margin-bottom: 15px;
     color: var(--primary-color);
-    font-size: 1.6rem; /* Slightly larger title */
-    text-align: center; /* Center the title */
+    font-size: 1.6rem;
+    text-align: center;
 }
 
-.cart-totals-content > div {
+.cart-totals-content > div { /* Consolidated version */
     display: flex;
     justify-content: space-between;
-    margin-bottom: 12px; /* Space between lines */
+    margin-bottom: 12px;
     font-size: 1rem;
 }
 
 .cart-subtotal span:last-child,
 .cart-total-amount span:last-child {
-    font-weight: normal; /* Make the amount normal weight */
+    font-weight: normal;
     color: var(--text-color);
 }
 
-.cart-subtotal,
-.cart-total-amount {
+.cart-subtotal {
      padding-bottom: 12px;
      border-bottom: 1px solid var(--border-color);
 }
+/* .cart-total-amount rule below is now standalone for its borders */
 
-.cart-delivery-info {
+.cart-delivery-info { /* Consolidated version */
     font-size: 0.95rem;
     color: #555;
     margin-top: 15px;
     padding-top: 15px;
     border-top: 1px solid var(--border-color);
-    flex-direction: column;
-    gap: 8px; /* Space between delivery lines */
+    flex-direction: column; /* Ensure this is still desired, was in the first definition */
+    gap: 8px;
 }
 
-.cart-total-amount {
-    font-size: 1.3rem; /* Larger font size for total */
+.cart-total-amount { /* Consolidated version, also includes properties from the .cart-subtotal, .cart-total-amount rule */
+    font-size: 1.3rem;
     font-weight: bold;
     margin-top: 15px;
     padding-top: 15px;
     border-top: 1px solid var(--border-color);
+    /* Removed padding-bottom and border-bottom from here, handled by .cart-subtotal or not at all for total */
 }
 
-.cart-totals-section .primary-button {
+.cart-totals-section .primary-button { /* Consolidated version */
     display: block;
     width: 100%;
-    margin-top: 20px; /* Space above the button */
-    padding: 12px; /* More padding */
+    margin-top: 20px;
+    padding: 12px;
     background-color: var(--primary-color);
     color: white;
     border: none;
@@ -778,13 +1005,12 @@ footer {
     font-weight: bold;
     transition: background-color 0.3s ease;
     text-align: center;
-    text-decoration: none; /* Ensure no underline if it's an <a> tag */
+    text-decoration: none;
 }
 
 .cart-totals-section .primary-button:hover {
-    background-color: darken(var(--primary-color), 10%); /* Requires a preprocessor or replace with a specific color */
-    /* Using a specific color for standard CSS */
-    background-color: #092f5a;
+    /* background-color: darken(var(--primary-color), 10%); /* This needs preprocessor */
+    background-color: #092f5a; /* Using a specific color for standard CSS */
 }
 
 .order-summary-items ul {
@@ -794,296 +1020,99 @@ footer {
 
 .recap-item{
     border-bottom: 1px solid var(--border-color);
-    border-radius: 25px;
+    border-radius: 8px; /* Adjusted border radius */
     padding: 10px;
 }
 
-.recap-item-info{
-    display: flex;
+.recap-item-info{ /* This rule is duplicated later, removing this one */
+    /* display: flex;
     align-items: center;
     gap: 10px;
-
     border-radius: 25px;
-    padding: 10px;
+    padding: 10px; */
 }
 
-.recap-item-image{
-    width: 40px;
+.recap-item-image{ /* This rule is duplicated later, removing this one */
+    /* width: 40px;
     height: 40px;
-    object-fit: cover;
+    object-fit: cover; */
 }
 /* --- Responsive Adjustments --- */
+/* First occurrence of @media (max-width: 768px) is removed as it's less comprehensive. */
+
+/* Second, more comprehensive @media (max-width: 768px) block is kept. */
 @media (max-width: 768px) {
-    .main-content-wrapper {
+    .main-content-wrapper { /* This is duplicated, the one inside the media query is more specific */
         flex-direction: column;
         padding: 0 10px;
     }
 
-    .cart-page-container {
+    .cart-page-container, /* This is duplicated */
+    .checkout-page-container {
          flex-direction: column;
+         gap: 20px; /* Reduce gap on smaller screens */
     }
 
-    .cart-items-section,
-    .cart-totals-section {
+    .cart-items-section, /* This is duplicated */
+    .cart-totals-section, /* This is duplicated */
+    .checkout-left-column,
+    .checkout-right-column {
         flex: none; /* Remove flex grow */
         width: 100%; /* Full width on small screens */
         min-width: 0;
     }
 
-    .cart-items-table th,
-    .cart-items-table td {
+    .cart-items-table th, /* This is duplicated */
+    .cart-items-table td { /* This is duplicated */
         padding: 8px; /* Reduce padding on smaller screens */
         font-size: 0.9rem;
     }
 
-     .cart-item-image {
+     .cart-item-image, /* This is duplicated for cart-item-image */
+     .recap-item-image { /* This is specific to recap-item-image */
         width: 40px;
         height: 40px;
      }
 
-     .cart-item-info h3 {
+     .cart-item-info h3 { /* This is duplicated */
          font-size: 0.9rem;
+     }
+
+     .promo-code { /* This is duplicated */
+         flex-direction: column;
+     }
+
+     .promo-code .button { /* This is duplicated */
+         width: 100%;
      }
 }
 
-.main-content-wrapper {
-    max-width: 1200px; /* Adjust max-width for better spacing */
-    margin: 20px auto; /* Center the content and add vertical margin */
-    padding: 0 20px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 30px; /* Increase space between sections */
-}
+/* Removed duplicated .main-content-wrapper, .cart-page-container, .cart-items-section,
+   .cart-totals-section, .cart-items-table, .cart-items-table th, .cart-items-table td,
+   .cart-item-info, .cart-item-image (for 60px), .quantity-selector, .remove-item-button,
+   .promo-code, .promo-code input, .promo-code .button, .cart-totals-section h2,
+   .cart-totals-content > div, .cart-delivery-info, .cart-total-amount,
+   .cart-totals-section .primary-button that were outside the media query, as they are now consolidated.
+   The specific versions for .cart-item-image (60px) and others are kept above.
+*/
 
-.cart-page-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 30px; /* Space between cart items and totals */
-    width: 100%; /* Ensure container takes full width */
-}
-
-
-.cart-items-section {
-    flex: 2; /* Cart items section takes up more space */
-    min-width: 300px; /* Ensure responsiveness */
-}
-
-.cart-totals-section {
-    flex: 1; /* Cart totals section takes up less space */
-    min-width: 280px; /* Ensure responsiveness */
-    border: 1px solid var(--border-color);
-    border-radius: 8px; /* Slightly more rounded corners */
-    padding: 20px; /* More padding inside the box */
-    background-color: var(--light-grey); /* Light background */
-    height: fit-content; /* Adjust height to content */
-}
-
-/* --- Cart Items Table --- */
-.cart-items-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px; /* More space below the table */
-    border: 1px solid var(--border-color); /* Add border around the table */
-    border-radius: 8px;
-    overflow: hidden; /* Hide overflow for rounded corners */
-}
-
-.cart-items-table thead {
-    background-color: #f0f0f0; /* Slightly darker header background */
-}
-
-.cart-items-table th,
-.cart-items-table td {
-    padding: 12px 15px; /* More padding */
-    text-align: left;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.cart-items-table th:first-child {
-    width: 40px; /* Adjust width for remove button column */
-    padding-left: 15px;
-    padding-right: 0;
-}
-
-.cart-items-table td:first-child {
-     padding-left: 15px;
-     padding-right: 0;
-}
-
-
-.cart-items-table th {
-    font-weight: bold;
-    color: var(--text-color);
-    font-size: 0.9rem;
-    text-transform: uppercase;
-}
-
-.cart-items-table tbody tr:last-child td {
-    border-bottom: none; /* No border for the last row */
-}
-
-.cart-item-info {
-    display: flex; /* Use flexbox to align image and text */
-    align-items: center; /* Vertically center items */
-    gap: 15px; /* Space between image and text */
-}
-
-.cart-item-image {
-    width: 60px; /* Control image width */
-    height: 60px; /* Control image height */
-    object-fit: cover; /* Crop image to fit */
-    border-radius: 4px; /* Optional: subtle border-radius */
-    flex-shrink: 0; /* Prevent image from shrinking */
-}
-
-.cart-item-info > div {
-    flex-grow: 1; /* Allow text content to take available space */
-}
-
-
-.quantity-selector {
-    width: 60px; /* Wider input */
-    padding: 8px; /* More padding */
-    text-align: center;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    font-size: 0.9rem;
-}
-
-.remove-item-button {
-    background-color: transparent;
-    border: none;
-    color: red;
-    font-size: 1.5rem; /* Larger icon */
-    cursor: pointer;
-    padding: 0;
-    margin: 0;
-    transition: color 0.2s ease;
-    line-height: 1; /* Center the 'x' vertically */
-}
-
-.remove-item-button:hover {
-    color: darkred;
-}
-
-.promo-code {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px; /* More space above */
-    padding-top: 20px; /* Space below the line */
-    border-top: 1px solid var(--border-color); /* Separator line */
-}
-
-.promo-code input[type="text"] {
-    flex-grow: 1;
-    padding: 12px; /* More padding */
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    font-size: 0.9rem;
-}
-
-.promo-code .button {
-    background-color: var(--accent-color);
-    color: var(--primary-color);
-    border: none;
-    border-radius: 4px;
-    padding: 12px 20px; /* More padding */
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-}
-
-.promo-code .button:hover {
-    /* Using a specific color for standard CSS */
-     background-color: #e6c300;
-}
-
-
-/* --- Cart Totals Section --- */
-.cart-totals-section h2 {
-    margin-top: 0;
-    margin-bottom: 15px; /* Space below title */
-    color: var(--primary-color);
-    font-size: 1.6rem; /* Slightly larger title */
-    text-align: center; /* Center the title */
-}
-
-.cart-totals-content > div {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 12px; /* Space between lines */
-    font-size: 1rem;
-}
-
-.cart-subtotal span:last-child,
-.cart-total-amount span:last-child {
-    font-weight: normal; /* Make the amount normal weight */
-    color: var(--text-color);
-}
-
-.cart-subtotal,
-.cart-total-amount {
-     padding-bottom: 12px;
-     border-bottom: 1px solid var(--border-color);
-}
-
-.cart-delivery-info {
-    font-size: 0.95rem;
-    color: #555;
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid var(--border-color);
-    flex-direction: column;
-    gap: 8px; /* Space between delivery lines */
-}
-
-.cart-total-amount {
-    font-size: 1.3rem; /* Larger font size for total */
-    font-weight: bold;
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid var(--border-color);
-}
-
-.cart-totals-section .primary-button {
-    display: block;
-    width: 100%;
-    margin-top: 20px; /* Space above the button */
-    padding: 12px; /* More padding */
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1.1rem;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-    text-align: center;
-    text-decoration: none; /* Ensure no underline if it's an <a> tag */
-}
-
-.cart-totals-section .primary-button:hover {
-    /* Using a specific color for standard CSS */
-    background-color: #092f5a;
-}
 
 /* --- Checkout View Styles --- */
 .checkout-page-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 30px; /* Space between columns */
+    gap: 30px;
     padding: 2rem 0;
     width: 100%;
 }
 
 .checkout-left-column {
-    flex: 2; /* Takes more space */
+    flex: 2;
     min-width: 300px;
 }
 
 .checkout-right-column {
-    flex: 1; /* Takes less space */
+    flex: 1;
     min-width: 280px;
 }
 
@@ -1093,7 +1122,7 @@ footer {
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 20px;
-    margin-bottom: 20px; /* Space between sections */
+    margin-bottom: 20px;
     background-color: var(--light-grey);
 }
 
@@ -1129,6 +1158,14 @@ footer {
     font-size: 1rem;
 }
 
+.form-group input[type="text"]:focus:not(.invalid),
+.form-group input[type="email"]:focus:not(.invalid),
+.form-group input[type="tel"]:focus:not(.invalid),
+.form-group textarea:focus:not(.invalid) {
+    box-shadow: 0 0 5px var(--primary-color);
+    border-color: var(--primary-color);
+}
+
 .delivery-options,
 .payment-options {
     margin-top: 15px;
@@ -1140,8 +1177,21 @@ footer {
     padding: 10px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
-    background-color: white; /* White background for options */
+    background-color: white;
     cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s; /* For hover effect */
+}
+
+.delivery-option:hover,
+.payment-option:hover {
+    border-color: var(--primary-color);
+    background-color: #e9ecef; /* Light grey background on hover */
+}
+
+.delivery-option:focus,
+.payment-option:focus {
+    box-shadow: 0 0 5px var(--primary-color);
+    outline: none;
 }
 
 .delivery-option label,
@@ -1156,7 +1206,7 @@ footer {
     font-size: 0.85rem;
     color: #555;
     margin-top: 5px;
-    margin-left: 25px; /* Indent description */
+    margin-left: 25px;
 }
 
 #confirm-order-button {
@@ -1199,13 +1249,15 @@ footer {
     padding-bottom: 0;
 }
 
-.recap-item-info {
+.recap-item-info { /* Kept the second, more complete definition */
     display: flex;
     align-items: center;
     gap: 10px;
+    /* border-radius: 25px; /* This was from the removed rule, seems excessive here */
+    /* padding: 10px; /* This was from the removed rule */
 }
 
-.recap-item-image {
+.recap-item-image { /* Kept the second, more complete definition */
     width: 40px;
     height: 40px;
     object-fit: cover;
@@ -1235,16 +1287,18 @@ footer {
      font-weight: normal;
 }
 
-.order-summary-totals .cart-total-amount {
+.order-summary-totals .cart-total-amount { /* This is a more specific version of .cart-total-amount */
     font-size: 1.3rem;
     font-weight: bold;
     margin-top: 15px;
     padding-top: 15px;
     border-top: 1px solid var(--border-color);
+    /* No border-bottom here to avoid double borders */
 }
 
 
-/* --- Responsive Adjustments --- */
+/* --- Responsive Adjustments (Consolidated) --- */
+/* The first less comprehensive media query block was removed. */
 @media (max-width: 768px) {
     .main-content-wrapper {
         flex-direction: column;
@@ -1254,26 +1308,26 @@ footer {
     .cart-page-container,
     .checkout-page-container {
          flex-direction: column;
-         gap: 20px; /* Reduce gap on smaller screens */
+         gap: 20px;
     }
 
     .cart-items-section,
     .cart-totals-section,
     .checkout-left-column,
     .checkout-right-column {
-        flex: none; /* Remove flex grow */
-        width: 100%; /* Full width on small screens */
+        flex: none;
+        width: 100%;
         min-width: 0;
     }
 
     .cart-items-table th,
     .cart-items-table td {
-        padding: 8px; /* Reduce padding on smaller screens */
+        padding: 8px;
         font-size: 0.9rem;
     }
 
-     .cart-item-image,
-     .recap-item-image {
+     .cart-item-image, /* Applies to cart item images in responsive */
+     .recap-item-image { /* Applies to recap item images in responsive */
         width: 40px;
         height: 40px;
      }
@@ -1289,4 +1343,66 @@ footer {
      .promo-code .button {
          width: 100%;
      }
+}
+
+/* Validation Styles */
+.form-group input.invalid,
+.form-group textarea.invalid {
+    border-color: red;
+    box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+}
+
+.error-message {
+    display: none; /* Hidden by default */
+    color: red;
+    font-size: 0.85em; /* Slightly smaller than label */
+    margin-top: 5px;
+    /* display property is handled by JavaScript */
+}
+
+/* --- Responsive Table Product Grid --- */
+@media (max-width: 768px) { /* Tablet and below */
+    /* Example for 2 columns, if desired at this breakpoint later.
+    .product-grid td {
+        width: 50%;
+    }
+    */
+}
+
+@media (max-width: 600px) { /* Mobile */
+    .product-grid table,
+    .product-grid tbody,
+    .product-grid tr,
+    .product-grid td {
+        display: block; /* Stack table elements */
+        width: 100% !important; /* Override 25% width, ensure full width */
+    }
+
+    .product-grid tr {
+        margin-bottom: 15px; /* Space between stacked product "rows" (which are now single cards) */
+        display: block; /* Ensure tr also behaves as a block for margin to work correctly */
+        border: 1px solid #f0f0f0; /* Add border to the "card" */
+        border-radius: 4px; /* Optional: round corners of the card */
+    }
+
+    .product-grid td {
+        border: none; /* Remove individual cell borders if tr has one */
+        border-bottom: 1px dashed #eee; /* Optional: separator between cell content items */
+        margin-bottom: 0;
+        width: auto !important; /* Reset width from desktop if !important was used there */
+    }
+    .product-grid td:last-child {
+        border-bottom: none; /* No separator for the last item in a "card" */
+    }
+
+    /* Optional: Adjust text sizes or padding within cells for mobile if needed */
+    .product-grid .product-name {
+        font-size: 1em;
+    }
+    .product-grid .product-price-display {
+        font-size: 1.05em;
+    }
+    .product-grid .short-desc {
+        min-height: auto; /* Allow description to flow naturally on mobile */
+    }
 }
