@@ -1,9 +1,10 @@
-// Helper function to format price (assuming it's not globally available)
+// Helper function to format price
 function formatPrice(price) {
-    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(price);
+    // return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(price); // Old
+    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF' }).format(price); // New
 }
 
-// Fonction pour générer le HTML d'une carte produit (original, for non-carousel use if any)
+// Fonction pour générer le HTML d'une carte produit (original, for grid use if any)
 function createProductCard(product) {
     return `
         <li class="product-card" data-product-id="${product.id}">
@@ -37,14 +38,66 @@ function createProductCardForCarousel(product) {
     `;
 }
 
+// Helper function to generate HTML for a single product cell (td)
+function createProductTableCell(product) {
+    const description = product.description ? product.description.substring(0, 50) + '...' : 'Description non disponible.';
+    return `
+        <td class="product-table-cell">
+            <div class="product-name"><strong>${product.name}</strong></div>
+            <div class="short-desc"><em>${description}</em></div>
+            <div class="product-price-display">
+                <strong>${formatPrice(product.price)}</strong>
+                <span class="heart-icon">♡</span>
+            </div>
+            <div class="rating-container">
+                <span class="star-rating">★★★★☆</span>
+                <span class="review-count">(25 avis)</span>
+            </div>
+        </td>
+    `;
+}
+
+// Function to generate HTML for the product table grid
+function createProductTableGrid(categoriesData) {
+    let gridHtml = '<div class="product-grid">';
+
+    categoriesData.forEach(category => {
+        if (category.subcategories && category.subcategories.length > 0) {
+            category.subcategories.forEach(subcategory => {
+                if (subcategory.products && subcategory.products.length > 0) {
+                    gridHtml += `<h3>${subcategory.name}</h3>`;
+                    gridHtml += '<table><tbody>';
+
+                    for (let i = 0; i < subcategory.products.length; i += 4) {
+                        gridHtml += '<tr>';
+                        for (let j = 0; j < 4; j++) {
+                            if (i + j < subcategory.products.length) {
+                                gridHtml += createProductTableCell(subcategory.products[i + j]);
+                            } else {
+                                // gridHtml += '<td></td>'; // Empty cell if fewer than 4 products in the last row chunk
+                            }
+                        }
+                        gridHtml += '</tr>';
+                    }
+                    gridHtml += '</tbody></table>';
+                }
+            });
+        }
+    });
+
+    gridHtml += '</div>';
+    return gridHtml;
+}
+
+
 // Fonction pour afficher les produits (conditionally carousel or grid)
-function displayProducts(products, subcategoryName = null) { // Added default null for subcategoryName
+function displayProducts(products, subcategoryName = null) {
     const productsSection = document.querySelector('.products-section');
     if (!productsSection) return;
 
     productsSection.innerHTML = ''; // Clear previous content
 
-    if (subcategoryName) { // Render Carousel
+    if (subcategoryName) { // Render Carousel for a specific subcategory
         const titleElement = document.createElement('h2');
         titleElement.className = 'subcategory-title';
         titleElement.textContent = subcategoryName;
@@ -70,17 +123,17 @@ function displayProducts(products, subcategoryName = null) { // Added default nu
         `;
         productsSection.insertAdjacentHTML('beforeend', carouselContainerHTML);
 
-        // Carousel Navigation Logic
+        // Carousel Navigation Logic (Ensure elements exist before adding listeners)
         const track = productsSection.querySelector('.carousel-track');
         const prevBtn = productsSection.querySelector('.prev-btn');
         const nextBtn = productsSection.querySelector('.next-btn');
 
-        if (track && prevBtn && nextBtn) { // Ensure elements exist
+        if (track && prevBtn && nextBtn) {
             const cardWidth = 250 + 15; // card width + gap
             let currentScroll = 0;
 
             function updateNavButtons() {
-                if (!track.parentElement) return; // Parent might not exist if section cleared rapidly
+                if (!track.parentElement) return;
                 prevBtn.disabled = currentScroll <= 0;
                 nextBtn.disabled = currentScroll + track.parentElement.clientWidth >= track.scrollWidth;
             }
@@ -92,7 +145,7 @@ function displayProducts(products, subcategoryName = null) { // Added default nu
             });
 
             nextBtn.addEventListener('click', () => {
-                 if (!track.parentElement) return;
+                if (!track.parentElement) return;
                 currentScroll = Math.min(currentScroll + cardWidth, track.scrollWidth - track.parentElement.clientWidth);
                 track.style.transform = `translateX(-${currentScroll}px)`;
                 updateNavButtons();
@@ -127,39 +180,31 @@ function displayProducts(products, subcategoryName = null) { // Added default nu
             });
         });
 
-    } else { // Render Grid
-        if (!products || products.length === 0) {
-            productsSection.innerHTML = '<p>Aucun produit à afficher.</p>'; // Generic message for grid
-            return;
-        }
-        const productList = document.createElement('ul');
-        productList.className = 'product-list';
-
-        // For grid, display all products passed (or a slice if defined elsewhere)
-        products.forEach(product => {
-            productList.innerHTML += createProductCard(product); // Use original card function
-        });
-        productsSection.appendChild(productList);
-
-        // Add event listeners for original grid buttons
-        productsSection.querySelectorAll('.add-to-cart-button').forEach(button => {
-            button.addEventListener('click', function(event) {
-                event.stopPropagation();
-                const productId = this.getAttribute('data-product-id');
-                addToCart(productId);
-            });
-        });
-
-        productsSection.querySelectorAll('.product-card:not(.carousel-item)').forEach(card => {
-             card.addEventListener('click', function(e) {
-                 if (!e.target.closest('button') && !e.target.closest('.view-more-link')) {
-                    const productId = this.getAttribute('data-product-id');
-                    window.location.href = `product-detail.html?id=${productId}`;
-                 }
-            });
-        });
-         // Note: view-more-link is an <a> tag, its default behavior should work.
+    } else { // Render Table Grid (for "Tous" or general view without specific subcategory)
+        // The 'products' argument is ignored here; we use global productsData for the full grid.
+        productsSection.innerHTML = createProductTableGrid(productsData.categories);
+        applyGridCellHoverEffects(); // Call the function here
+        // TODO: Add event listeners for elements within the table grid if needed (e.g., heart icons)
     }
+}
+
+function applyGridCellHoverEffects() {
+    const gridCells = document.querySelectorAll('.product-grid td');
+    gridCells.forEach(cell => {
+        cell.addEventListener('mouseover', () => {
+            cell.style.transition = 'transform 0.2s ease-out, box-shadow 0.2s ease-out';
+            cell.style.transform = 'scale(1.02)';
+            cell.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+            cell.style.zIndex = '10';
+            cell.style.position = 'relative';
+        });
+        cell.addEventListener('mouseout', () => {
+            cell.style.transform = '';
+            cell.style.boxShadow = '';
+            cell.style.zIndex = '';
+            // cell.style.position = ''; // Only remove if it wasn't relative before, or set to initial
+        });
+    });
 }
 
 // Fonction pour afficher les catégories et sous-catégories dans la sidebar
@@ -207,18 +252,15 @@ function initializeSidebar() {
                     }
                 });
 
-                const firstCategoryWithSubs = productsData.categories.find(cat => cat.subcategories && cat.subcategories.length > 0);
-                if (firstCategoryWithSubs && firstCategoryWithSubs.subcategories && firstCategoryWithSubs.subcategories.length > 0) {
-                    const productsToShow = firstCategoryWithSubs.subcategories[0].products.slice(0, 6); // Get some products
-                    displayProducts(productsToShow, null); // Pass null for subcategoryName to trigger grid display
-                } else {
-                    // Fallback if no categories with subcategories exist, or display all products
-                    const allProducts = productsData.categories.reduce((acc, category) => {
-                        category.subcategories.forEach(sub => acc.push(...sub.products));
-                        return acc;
-                    }, []).slice(0,6); // Example: display first 6 of all products
-                    displayProducts(allProducts, null);
-                }
+                // Collapse all other categories
+                categoryList.querySelectorAll('li.expanded').forEach(li => {
+                    // Do not collapse 'Tous' if it were expandable, but it's not in this design.
+                    // For now, 'Tous' click means collapsing all actual categories.
+                    li.classList.remove('expanded');
+                    const icon = li.querySelector('.toggle-icon');
+                    if (icon) icon.textContent = '▶';
+                });
+                displayProducts(null, null); // Signal to display the full table grid for "Tous"
             } else { // For specific categories (not "Tous")
                 const isCurrentlyExpanded = parentLi.classList.contains('expanded');
 

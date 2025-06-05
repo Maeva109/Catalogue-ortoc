@@ -319,6 +319,88 @@ nav ul li a.active {
     cursor: not-allowed;
 }
 
+/* --- Table Product Grid Styles --- */
+.product-grid {
+    margin-bottom: 40px; /* Space after the entire grid section */
+}
+
+.product-grid h3 { /* Styling for subcategory titles within the grid */
+    font-size: 1.8em; /* Or as appropriate */
+    color: var(--text-color); /* Or a specific color if desired */
+    margin-top: 2rem;    /* Space above a new subcategory table */
+    margin-bottom: 1rem; /* Space between title and its table */
+}
+.product-grid h3:first-child {
+    margin-top: 0; /* No top margin for the very first subcategory title */
+}
+
+.product-grid table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px; /* Space between tables if there are multiple */
+}
+
+.product-grid td { /* Renamed from .product-table-cell for consistency with <td> target */
+    width: 25%; /* Aim for 4 columns */
+    padding: 12px;
+    vertical-align: top;
+    border: 1px solid #f0f0f0; /* Light grey border for cells */
+    text-align: left; /* Default text align */
+}
+
+.product-grid .product-name {
+    font-weight: bold;
+    font-size: 1.1em; /* Medium size */
+    margin-bottom: 0.5em;
+    display: block; /* Ensure it takes its own line */
+}
+
+.product-grid .short-desc {
+    font-style: italic;
+    color: #777; /* Light grey */
+    font-size: 0.9em;
+    margin-bottom: 0.75em;
+    display: block; /* Ensure it takes its own line */
+    min-height: 3em; /* Attempt to reserve space for 2-3 lines to help vertical alignment */
+}
+
+.product-grid .product-price-display {
+    font-weight: bold;
+    font-size: 1.15em; /* Slightly larger */
+    margin-bottom: 0.5em;
+    display: flex; /* For aligning heart icon */
+    justify-content: space-between; /* Push heart to the right */
+    align-items: center;
+}
+
+.product-grid .heart-icon {
+    /* font-size: 1.2em; /* Optional: make heart slightly bigger */
+    /* color: #ccc; /* Default color for non-liked heart */
+    cursor: pointer; /* If it becomes interactive */
+    margin-left: 5px; /* Space from price */
+}
+/* Example for a liked heart (if class is added by JS later) */
+/*
+.product-grid .heart-icon.liked {
+    color: red;
+}
+*/
+
+.product-grid .rating-container { /* Optional wrapper for stars and reviews */
+    font-size: 0.9em;
+    color: #555;
+    min-height: 2em; /* Reserve space */
+}
+
+.product-grid .star-rating {
+    color: #f0ad4e; /* Orange/gold color for stars */
+    margin-right: 0.5em;
+}
+
+.product-grid .review-count {
+    color: #777; /* Light grey for review count */
+}
+
 
 /* --- Carousel Item (Product Card Adaptation) --- */
 .carousel-item {
@@ -1276,4 +1358,51 @@ footer {
     font-size: 0.85em; /* Slightly smaller than label */
     margin-top: 5px;
     /* display property is handled by JavaScript */
+}
+
+/* --- Responsive Table Product Grid --- */
+@media (max-width: 768px) { /* Tablet and below */
+    /* Example for 2 columns, if desired at this breakpoint later.
+    .product-grid td {
+        width: 50%;
+    }
+    */
+}
+
+@media (max-width: 600px) { /* Mobile */
+    .product-grid table,
+    .product-grid tbody,
+    .product-grid tr,
+    .product-grid td {
+        display: block; /* Stack table elements */
+        width: 100% !important; /* Override 25% width, ensure full width */
+    }
+
+    .product-grid tr {
+        margin-bottom: 15px; /* Space between stacked product "rows" (which are now single cards) */
+        display: block; /* Ensure tr also behaves as a block for margin to work correctly */
+        border: 1px solid #f0f0f0; /* Add border to the "card" */
+        border-radius: 4px; /* Optional: round corners of the card */
+    }
+
+    .product-grid td {
+        border: none; /* Remove individual cell borders if tr has one */
+        border-bottom: 1px dashed #eee; /* Optional: separator between cell content items */
+        margin-bottom: 0;
+        width: auto !important; /* Reset width from desktop if !important was used there */
+    }
+    .product-grid td:last-child {
+        border-bottom: none; /* No separator for the last item in a "card" */
+    }
+
+    /* Optional: Adjust text sizes or padding within cells for mobile if needed */
+    .product-grid .product-name {
+        font-size: 1em;
+    }
+    .product-grid .product-price-display {
+        font-size: 1.05em;
+    }
+    .product-grid .short-desc {
+        min-height: auto; /* Allow description to flow naturally on mobile */
+    }
 }
